@@ -33,6 +33,7 @@ public class OfficeLocationServiceImpl implements OfficeLocationService {
                 .name(request.getName())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
+                .radiusMeters(200)
                 .build();
         OfficeLocation createdOffice = officeLocationRepository.save(office);
 

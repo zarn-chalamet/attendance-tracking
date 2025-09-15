@@ -22,4 +22,14 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleOfficeAlreadyRegisteredException(OfficeAlreadyRegisteredException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
+
+    @ExceptionHandler(SessionAlreadyExistException.class)
+    public ProblemDetail handleSessionAlreadyExistException(SessionAlreadyExistException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(SessionWindowNotFoundException.class)
+    public ProblemDetail handleSessionWindowNotFoundException(SessionWindowNotFoundException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
 }
