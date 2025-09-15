@@ -6,30 +6,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Entity
-@Table(name = "users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User {
+public class SessionWindow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Enumerated(EnumType.STRING)
+    private SessionType sessionType;
 
-    @Column(unique = true)
-    private String email;
-
-    @Column(nullable = false)
-    private String passwordHash;
-
-    @Lob
-    private String faceEmbeddingJson;
-
-    @ManyToOne
-    private OfficeLocation assignedOffice;
+    private LocalTime startTime;
+    private LocalTime endTime;
 }
