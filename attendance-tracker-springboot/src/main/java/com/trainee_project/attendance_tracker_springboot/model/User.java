@@ -20,6 +20,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Column(unique = true, nullable = false)

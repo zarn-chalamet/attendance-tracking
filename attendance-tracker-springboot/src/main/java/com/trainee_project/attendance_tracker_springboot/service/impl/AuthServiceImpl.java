@@ -59,15 +59,15 @@ public class AuthServiceImpl implements AuthService {
         }
 
         //get office by id
-//        OfficeLocation office = officeLocationRepository.findById(registerRequestDto.getOfficeId())
-//                .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: "+registerRequestDto.getOfficeId()));
+        OfficeLocation office = officeLocationRepository.findById(registerRequestDto.getOfficeId())
+                .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: " + registerRequestDto.getOfficeId()));
 
         //save new User
         User newUser = User.builder()
                 .email(registerRequestDto.getEmail())
                 .password(passwordEncoder.encode(registerRequestDto.getPassword()))
                 .username(registerRequestDto.getUsername())
-//                .assignedOffice(office)
+                .assignedOffice(office)
                 .role(Role.USER_ROLE)
                 .build();
 

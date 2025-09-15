@@ -17,4 +17,9 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleOfficeNotFoundException(OfficeNotFoundException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
+
+    @ExceptionHandler(OfficeAlreadyRegisteredException.class)
+    public ProblemDetail handleOfficeAlreadyRegisteredException(OfficeAlreadyRegisteredException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
 }
