@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "users")
 @Data
@@ -16,7 +18,9 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private UUID id;
+
+    private Role role;
 
     @Column(unique = true, nullable = false)
     private String username;
@@ -25,7 +29,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String passwordHash;
+    private String password;
 
     @Lob
     private String faceEmbeddingJson;

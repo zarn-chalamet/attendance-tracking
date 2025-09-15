@@ -17,7 +17,7 @@ public class SessionWindow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     private SessionType sessionType;
