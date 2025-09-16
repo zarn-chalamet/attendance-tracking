@@ -1,7 +1,9 @@
 package com.trainee_project.attendance_tracker_springboot.service;
 
 import com.trainee_project.attendance_tracker_springboot.dto.UserResponseDto;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface UserService {
@@ -9,7 +11,7 @@ public interface UserService {
 
     UserResponseDto getUserById(String userId);
 
-    UserResponseDto updateFaceEmbeddingJson(String userId, String faceEmbeddingJson);
+    UserResponseDto updateFaceEmbeddingJson(String userId, MultipartFile file) throws IOException;
 
     UserResponseDto getUserProfile(String email);
 }

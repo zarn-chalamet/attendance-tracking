@@ -21,7 +21,7 @@ public class UserResponseDto {
 
     private String email;
 
-    private String faceEmbeddingJson;
+    private String faceUrl;
 
     private Long officeId;
 

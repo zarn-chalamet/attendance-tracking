@@ -8,8 +8,16 @@ import com.trainee_project.attendance_tracker_springboot.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -37,12 +45,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto updateFaceEmbeddingJson(String userId, String faceEmbeddingJson) {
+    public UserResponseDto updateFaceEmbeddingJson(String userId, MultipartFile file) throws IOException {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: "+userId));
 
-        user.setFaceEmbeddingJson(faceEmbeddingJson);
+        //save url in the upload file
+        Path uploadPath = Paths.get("upload").toAbsolutePath().normalize();
+        Files.createDirectories(uploadPath);
+
+        String fileName = UUID.randomUUID() + "." + StringUtils.getFilenameExtension(file.getOriginalFilename());
+        Path targetLocation = uploadPath.resolve(fileName);
+        Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+        user.setFaceUrl(targetLocation.toString());
         userRepository.save(user);
 
         return UserMapper.mapToDto(user);

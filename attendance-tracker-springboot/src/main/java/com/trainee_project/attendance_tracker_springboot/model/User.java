@@ -32,8 +32,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Lob
-    private String faceEmbeddingJson;
+    private String faceUrl;
 
     @ManyToOne
     private OfficeLocation assignedOffice;

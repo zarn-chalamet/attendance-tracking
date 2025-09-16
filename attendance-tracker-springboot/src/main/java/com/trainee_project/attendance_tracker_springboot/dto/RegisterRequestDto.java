@@ -1,5 +1,6 @@
 package com.trainee_project.attendance_tracker_springboot.dto;
 
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,10 +17,6 @@ public class RegisterRequestDto {
     private String email;
 
     private String password;
-
-//    this will be uncommented in the next process
-//    @Lob
-//    private String faceEmbeddingJson;
 
     private String officeId;
 }

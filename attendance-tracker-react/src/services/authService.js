@@ -2,6 +2,9 @@ import api from "./api";
 
 export const authService = {
   login: (credentials) => api.post("/auth/login", credentials),
-  register: (userData) => api.post("/auth/register", userData),
+  register: (formData) =>
+    api.post("/auth/register", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
   getCurrentUser: () => api.get("/users/profile"),
 };

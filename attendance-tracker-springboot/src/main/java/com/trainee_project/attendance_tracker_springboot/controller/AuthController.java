@@ -7,10 +7,10 @@ import com.trainee_project.attendance_tracker_springboot.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/v1/api/auth")
@@ -30,9 +30,13 @@ public class AuthController {
 
     //register user
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDto registerRequestDto) {
+    public ResponseEntity<?> registerUser(@RequestParam("file") MultipartFile file,
+                                          @RequestParam("username") String username,
+                                          @RequestParam("email") String email,
+                                          @RequestParam("password") String password,
+                                          @RequestParam("officeId") String officeId) throws IOException {
         System.out.println("register user ran.");
-        authService.createUser(registerRequestDto);
+        authService.createUser(file, username, email, password, officeId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Registered successfully.");
     }

@@ -20,6 +20,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -50,25 +59,38 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void createUser(RegisterRequestDto registerRequestDto) {
+    public void createUser(MultipartFile file, String username, String email, String password, String officeId) throws IOException {
 
+        System.out.println("---------------------------");
+        System.out.println(username);
+        System.out.println(password);
+        System.out.println(officeId);
         //check the user exist or not
-        boolean userExists = userRepository.existsByEmail(registerRequestDto.getEmail());
+        boolean userExists = userRepository.existsByEmail(email);
         if(userExists) {
-            throw new UserAlreadyExistException("User already registered with email: "+ registerRequestDto.getEmail());
+            throw new UserAlreadyExistException("User already registered with email: "+ email);
         }
 
         //get office by id
-        OfficeLocation office = officeLocationRepository.findById(registerRequestDto.getOfficeId())
-                .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: " + registerRequestDto.getOfficeId()));
+        OfficeLocation office = officeLocationRepository.findById(officeId)
+                .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: " + officeId));
+
+        //save url in the upload file
+        Path uploadPath = Paths.get("upload").toAbsolutePath().normalize();
+        Files.createDirectories(uploadPath);
+
+        String fileName = UUID.randomUUID() + "." + StringUtils.getFilenameExtension(file.getOriginalFilename());
+        Path targetLocation = uploadPath.resolve(fileName);
+        Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
         //save new User
         User newUser = User.builder()
-                .email(registerRequestDto.getEmail())
-                .password(passwordEncoder.encode(registerRequestDto.getPassword()))
-                .username(registerRequestDto.getUsername())
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .username(username)
                 .assignedOffice(office)
                 .role(Role.USER_ROLE)
+                .faceUrl(targetLocation.toString())
                 .build();
 
         userRepository.save(newUser);

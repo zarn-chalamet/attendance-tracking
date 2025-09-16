@@ -40,9 +40,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authService.login(credentials);
-      const { user: userData, token: authToken } = response;
+      console.log("login response");
+      console.log(response);
+      const { token: authToken } = response;
       
-      setUser(userData);
       setToken(authToken);
       localStorage.setItem('authToken', authToken);
       

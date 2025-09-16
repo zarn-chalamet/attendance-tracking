@@ -14,7 +14,7 @@ public class UserMapper {
                 .email(user.getEmail())
                 .officeId(user.getAssignedOffice().getId())
                 .office_name(user.getAssignedOffice().getName())
-                .faceEmbeddingJson(user.getFaceEmbeddingJson())
+                .faceUrl(user.getFaceUrl())
                 .build();
     }
 }

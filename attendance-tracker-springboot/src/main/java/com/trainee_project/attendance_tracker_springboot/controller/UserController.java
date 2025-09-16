@@ -6,7 +6,9 @@ import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -40,8 +42,8 @@ public class UserController {
     //update user(face embedding json)
     @PatchMapping("/{userId}")
     public ResponseEntity<UserResponseDto> updateUser(@PathVariable String userId,
-                                                      @RequestParam("faceEmbeddingJson") String faceEmbeddingJson) {
-        return ResponseEntity.ok(userService.updateFaceEmbeddingJson(userId,faceEmbeddingJson));
+                                                      @RequestParam("file") MultipartFile file) throws IOException {
+        return ResponseEntity.ok(userService.updateFaceEmbeddingJson(userId,file));
     }
 
 }
