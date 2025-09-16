@@ -2,6 +2,7 @@ package com.trainee_project.attendance_tracker_springboot.controller;
 
 import com.trainee_project.attendance_tracker_springboot.dto.OfficeLocationRequestDto;
 import com.trainee_project.attendance_tracker_springboot.dto.OfficeLocationResponseDto;
+import com.trainee_project.attendance_tracker_springboot.dto.UserResponseDto;
 import com.trainee_project.attendance_tracker_springboot.service.OfficeLocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,15 @@ public class OfficeLocationController {
         List<OfficeLocationResponseDto> offices = officeLocationService.getOfficeLists();
 
         return ResponseEntity.ok(offices);
+    }
+
+    //get user list of office
+    @GetMapping("/{officeId}/users")
+    public ResponseEntity<List<UserResponseDto>> getUserListByOffice(@PathVariable String officeId) {
+
+        List<UserResponseDto> userList = officeLocationService.getUserListByOffice(officeId);
+
+        return ResponseEntity.ok(userList);
     }
 
     //get office by id

@@ -6,4 +6,5 @@ export const officeService = {
   createOffice: (data) => api.post("/offices/create", data),
   updateOffice: (officeId, data) => api.put(`/offices/${officeId}`, data),
   deleteOffice: (officeId) => api.delete(`/offices/${officeId}`),
+  getOfficeUserList: (officeId) => api.get(`/offices/${officeId}/users`),
 };

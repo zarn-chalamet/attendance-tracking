@@ -2,11 +2,15 @@ package com.trainee_project.attendance_tracker_springboot.service.impl;
 
 import com.trainee_project.attendance_tracker_springboot.dto.OfficeLocationRequestDto;
 import com.trainee_project.attendance_tracker_springboot.dto.OfficeLocationResponseDto;
+import com.trainee_project.attendance_tracker_springboot.dto.UserResponseDto;
 import com.trainee_project.attendance_tracker_springboot.exception.OfficeAlreadyRegisteredException;
 import com.trainee_project.attendance_tracker_springboot.exception.OfficeNotFoundException;
 import com.trainee_project.attendance_tracker_springboot.mapper.OfficeLocationMapper;
+import com.trainee_project.attendance_tracker_springboot.mapper.UserMapper;
 import com.trainee_project.attendance_tracker_springboot.model.OfficeLocation;
+import com.trainee_project.attendance_tracker_springboot.model.User;
 import com.trainee_project.attendance_tracker_springboot.repository.OfficeLocationRepository;
+import com.trainee_project.attendance_tracker_springboot.repository.UserRepository;
 import com.trainee_project.attendance_tracker_springboot.service.OfficeLocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +22,7 @@ import java.util.List;
 public class OfficeLocationServiceImpl implements OfficeLocationService {
 
     private final OfficeLocationRepository officeLocationRepository;
+    private final UserRepository userRepository;
 
     @Override
     public OfficeLocationResponseDto createOffice(OfficeLocationRequestDto request) {
@@ -93,4 +98,15 @@ public class OfficeLocationServiceImpl implements OfficeLocationService {
 
         officeLocationRepository.delete(office);
     }
+
+    @Override
+    public List<UserResponseDto> getUserListByOffice(String officeId) {
+
+        Long officeIdLong = Long.valueOf(officeId);
+
+        return userRepository.findByAssignedOffice_Id(officeIdLong).stream()
+                .map(UserMapper::mapToDto)
+                .toList();
+    }
+
 }
