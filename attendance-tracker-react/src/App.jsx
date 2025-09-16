@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard';
 // import SessionManagement from './components/admin/SessionManagement';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
+import HistoryPage from './pages/HistoryPage';
+import Announcement from './pages/Announcement';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -49,6 +51,27 @@ function App() {
             } 
           />
           
+          <Route 
+            path="/history" 
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <HistoryPage/>
+                </Layout>
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/announcement" 
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Announcement/>
+                </Layout>
+              </ProtectedRoute>
+            } 
+          />
           {/* <Route 
             path="/admin" 
             element={

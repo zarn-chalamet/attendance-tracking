@@ -4,14 +4,14 @@ import com.trainee_project.attendance_tracker_springboot.dto.AttendanceRecordDto
 import com.trainee_project.attendance_tracker_springboot.dto.ClockRequestDto;
 import com.trainee_project.attendance_tracker_springboot.dto.LocationVerifyRequestDto;
 import com.trainee_project.attendance_tracker_springboot.dto.LocationVerifyResponseDto;
+import com.trainee_project.attendance_tracker_springboot.model.SessionType;
 import com.trainee_project.attendance_tracker_springboot.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 
 @RestController
@@ -22,21 +22,27 @@ public class AttendanceController {
     private final AttendanceService attendanceService;
 
     @PostMapping("/clock-in")
-    public ResponseEntity<AttendanceRecordDto> clockIn(@RequestBody ClockRequestDto request,
-                                                       Principal principal) {
+    public ResponseEntity<AttendanceRecordDto> clockIn(@RequestParam("file")MultipartFile file,
+                                                       @RequestParam SessionType sessionType,
+                                                       @RequestParam double lat,
+                                                       @RequestParam double lng,
+                                                       Principal principal) throws IOException {
 
         String email = principal.getName();
-        AttendanceRecordDto record = attendanceService.clockIn(email, request);
+        AttendanceRecordDto record = attendanceService.clockIn(email, file,sessionType, lat,lng);
 
         return ResponseEntity.ok(record);
     }
 
     @PostMapping("/clock-out")
-    public ResponseEntity<AttendanceRecordDto> clockOut(@RequestBody ClockRequestDto request,
-                                                       Principal principal) {
+    public ResponseEntity<AttendanceRecordDto> clockOut(@RequestParam("file")MultipartFile file,
+                                                        @RequestParam SessionType sessionType,
+                                                        @RequestParam double lat,
+                                                        @RequestParam double lng,
+                                                        Principal principal) throws IOException {
 
         String email = principal.getName();
-        AttendanceRecordDto record = attendanceService.clockOut(email, request);
+        AttendanceRecordDto record = attendanceService.clockOut(email, file,sessionType, lat,lng);
 
         return ResponseEntity.ok(record);
     }

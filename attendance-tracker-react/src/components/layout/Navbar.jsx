@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { User, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -8,13 +8,6 @@ const Navbar = () => {
   const location = useLocation();
   const {user, loading, logout} = useAuth();
 
-  // Sample user data
-  // const user = {
-  //   name: "John Doe",
-  //   email: "john.doe@company.com",
-  //   role: "Administrator",
-  // };
-
   useEffect(() => {
     console.log(user)
   },[user])
@@ -22,17 +15,13 @@ const Navbar = () => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'History', href: '/history' },
-    { name: 'Announcement', href: '/settings' },
+    { name: 'Announcement', href: '/announcement' },
   ];
 
   const isActiveLink = (href) => {
     return location.pathname === href;
   };
 
-  const handleLogout = () => {
-    // Add your logout logic here
-    console.log("Logging out...");
-  };
 
   if (loading) {
     return <div className="p-4">Loading user...</div>; 
@@ -63,9 +52,9 @@ const Navbar = () => {
           <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2">
             <div className="flex items-center space-x-8">
               {navigation.map((item) => (
-                <a
+                <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.href}
                   className={`relative px-1 py-2 text-sm font-medium transition-colors duration-200 ${
                     isActiveLink(item.href)
                       ? 'text-indigo-600'
@@ -76,7 +65,7 @@ const Navbar = () => {
                   {isActiveLink(item.href) && (
                     <span className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 rounded-full"></span>
                   )}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -105,16 +94,20 @@ const Navbar = () => {
                   <p className="text-xs text-gray-500 truncate">{user.email}</p>
                 </div>
                 
-                <a
-                  href="/profile"
+                <Link
+                  to="/profile"
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setIsProfileOpen(false)}
                 >
                   <User className="w-4 h-4 mr-2" /> 
                   Profile
-                </a>
+                </Link>
                 
                 <button
-                  onClick={handleLogout}
+                  onClick={() => {
+                    logout();
+                    setIsProfileOpen(false);
+                  }}
                   className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100"
                 >
                   <LogOut className="w-4 h-4 mr-2" /> 
@@ -129,9 +122,9 @@ const Navbar = () => {
         <div className="md:hidden pb-3 border-t border-gray-100 mt-2 pt-3">
           <div className="flex justify-center space-x-6">
             {navigation.map((item) => (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 className={`flex flex-col items-center px-2 py-1 text-xs font-medium ${
                   isActiveLink(item.href)
                     ? 'text-indigo-600'
@@ -142,7 +135,7 @@ const Navbar = () => {
                 {isActiveLink(item.href) && (
                   <span className="mt-1 w-1 h-1 bg-indigo-600 rounded-full"></span>
                 )}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

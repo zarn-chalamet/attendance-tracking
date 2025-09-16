@@ -1,24 +1,23 @@
 package com.trainee_project.attendance_tracker_springboot.service.impl;
 
-import com.trainee_project.attendance_tracker_springboot.dto.AttendanceRecordDto;
-import com.trainee_project.attendance_tracker_springboot.dto.ClockRequestDto;
-import com.trainee_project.attendance_tracker_springboot.dto.LocationVerifyRequestDto;
-import com.trainee_project.attendance_tracker_springboot.dto.LocationVerifyResponseDto;
+import com.trainee_project.attendance_tracker_springboot.dto.*;
 import com.trainee_project.attendance_tracker_springboot.exception.SessionWindowNotFoundException;
-import com.trainee_project.attendance_tracker_springboot.model.AttendanceRecord;
-import com.trainee_project.attendance_tracker_springboot.model.OfficeLocation;
-import com.trainee_project.attendance_tracker_springboot.model.SessionWindow;
-import com.trainee_project.attendance_tracker_springboot.model.User;
+import com.trainee_project.attendance_tracker_springboot.model.*;
 import com.trainee_project.attendance_tracker_springboot.repository.AttendanceRecordRepository;
 import com.trainee_project.attendance_tracker_springboot.repository.OfficeLocationRepository;
 import com.trainee_project.attendance_tracker_springboot.repository.SessionWindowRepository;
 import com.trainee_project.attendance_tracker_springboot.repository.UserRepository;
 import com.trainee_project.attendance_tracker_springboot.service.AttendanceService;
+import com.trainee_project.attendance_tracker_springboot.service.FaceRecognitionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,10 +30,11 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final UserRepository userRepository;
     private final SessionWindowRepository sessionWindowRepository;
+    private final FaceRecognitionService faceRecognitionService;
 
     @Override
     @Transactional
-    public AttendanceRecordDto clockIn(String email, ClockRequestDto request) {
+    public AttendanceRecordDto clockIn(String email, MultipartFile file, SessionType sessionType, double lat, double lng) throws IOException {
 
         //get user by email
         User user = userRepository.findByEmail(email)
@@ -47,8 +47,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
 
         //get session window by session type
-        SessionWindow session = sessionWindowRepository.findBySessionType(request.getSessionType())
-                .orElseThrow(() -> new SessionWindowNotFoundException("Session window not found with session type: "+request.getSessionType()));
+        SessionWindow session = sessionWindowRepository.findBySessionType(sessionType)
+                .orElseThrow(() -> new SessionWindowNotFoundException("Session window not found with session type: "+sessionType));
 
         LocalTime nowTime = LocalTime.now();
         if(nowTime.isBefore(session.getStartTime()) || nowTime.isAfter(session.getEndTime())) {
@@ -63,25 +63,31 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         Optional<AttendanceRecord> existingOpen = attendanceRecordRepository
                 .findTopByUserAndSessionTypeAndClockInTimeBetweenOrderByClockInTimeDesc(
-                        user, request.getSessionType(), dayStart, dayEnd);
+                        user, sessionType, dayStart, dayEnd);
 
 
         if (existingOpen.isPresent() && existingOpen.get().getClockOutTime() == null) {
             throw new IllegalStateException("Already clocked in for this session and not clocked out yet.");
         }
 
-        //distance check
-
         //face check
+        byte[] referenceImage = Files.readAllBytes(Paths.get(user.getFaceUrl()));
+        byte[] liveImage = file.getBytes();
+
+        FaceVerificationResponseDto faceResponse = faceRecognitionService.verifyFace(referenceImage, liveImage);
+
+        if (!faceResponse.isVerified()) {
+            throw new IllegalStateException("Face verification failed. Confidence: " + faceResponse.getConfidence());
+        }
 
         //save
         AttendanceRecord record = AttendanceRecord.builder()
                 .user(user)
-                .sessionType(request.getSessionType())
+                .sessionType(sessionType)
                 .clockInTime(LocalDateTime.now())
-                .clockInLat(request.getLat())
-                .clockInLng(request.getLng())
-//                .faceMatchScore()
+                .clockInLat(lat)
+                .clockInLng(lng)
+                .faceMatchScore(faceResponse.getConfidence())
                 .status("OK")
                 .build();
         AttendanceRecord savedRecord = attendanceRecordRepository.save(record);
@@ -101,7 +107,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     @Transactional
-    public AttendanceRecordDto clockOut(String email, ClockRequestDto request) {
+    public AttendanceRecordDto clockOut(String email, MultipartFile file, SessionType sessionType, double lat, double lng) throws IOException {
 
         //get user by email
         User user = userRepository.findByEmail(email)
@@ -114,8 +120,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
 
         //get session window by session type
-        SessionWindow session = sessionWindowRepository.findBySessionType(request.getSessionType())
-                .orElseThrow(() -> new SessionWindowNotFoundException("Session window not found with session type: "+request.getSessionType()));
+        SessionWindow session = sessionWindowRepository.findBySessionType(sessionType)
+                .orElseThrow(() -> new SessionWindowNotFoundException("Session window not found with session type: "+sessionType));
 
         LocalTime nowTime = LocalTime.now();
         if(nowTime.isBefore(session.getStartTime()) || nowTime.isAfter(session.getEndTime())) {
@@ -130,7 +136,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         Optional<AttendanceRecord> existingOpt = attendanceRecordRepository
                 .findTopByUserAndSessionTypeAndClockInTimeBetweenOrderByClockInTimeDesc(
-                        user, request.getSessionType(), dayStart, dayEnd);
+                        user, sessionType, dayStart, dayEnd);
 
 
         if (existingOpt.isEmpty()) {
@@ -143,14 +149,20 @@ public class AttendanceServiceImpl implements AttendanceService {
             throw new IllegalStateException("Already clocked out for this session.");
         }
 
-        //distance check
-
         //face check
+        byte[] referenceImage = Files.readAllBytes(Paths.get(user.getFaceUrl()));
+        byte[] liveImage = file.getBytes();
+
+        FaceVerificationResponseDto faceResponse = faceRecognitionService.verifyFace(referenceImage, liveImage);
+
+        if (!faceResponse.isVerified()) {
+            throw new IllegalStateException("Face verification failed. Confidence: " + faceResponse.getConfidence());
+        }
 
         // update record
         record.setClockOutTime(LocalDateTime.now());
-        record.setClockOutLat(request.getLat());
-        record.setClockOutLng(request.getLng());
+        record.setClockOutLat(lat);
+        record.setClockOutLng(lng);
 
         AttendanceRecord savedRecord = attendanceRecordRepository.save(record);
 
@@ -179,11 +191,12 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         //get office
         OfficeLocation office = user.getAssignedOffice();
-        System.out.println("==================");
-        System.out.println(office.getRadiusMeters());
         if (office == null) {
             throw new IllegalStateException("User has no assigned office location");
         }
+        System.out.println("==================");
+        System.out.println(office.getRadiusMeters());
+
 
         double distance = haversine(request.getLat(), request.getLng(),
                 office.getLatitude(), office.getLongitude());
