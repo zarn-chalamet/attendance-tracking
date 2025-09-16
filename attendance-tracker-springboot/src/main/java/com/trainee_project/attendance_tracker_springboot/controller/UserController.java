@@ -2,7 +2,6 @@ package com.trainee_project.attendance_tracker_springboot.controller;
 
 import com.trainee_project.attendance_tracker_springboot.dto.UserResponseDto;
 import com.trainee_project.attendance_tracker_springboot.service.UserService;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

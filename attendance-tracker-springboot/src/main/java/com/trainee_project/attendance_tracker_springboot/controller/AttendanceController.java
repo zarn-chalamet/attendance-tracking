@@ -1,9 +1,6 @@
 package com.trainee_project.attendance_tracker_springboot.controller;
 
-import com.trainee_project.attendance_tracker_springboot.dto.AttendanceRecordDto;
-import com.trainee_project.attendance_tracker_springboot.dto.ClockRequestDto;
-import com.trainee_project.attendance_tracker_springboot.dto.LocationVerifyRequestDto;
-import com.trainee_project.attendance_tracker_springboot.dto.LocationVerifyResponseDto;
+import com.trainee_project.attendance_tracker_springboot.dto.*;
 import com.trainee_project.attendance_tracker_springboot.model.SessionType;
 import com.trainee_project.attendance_tracker_springboot.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/api/attendance")
@@ -55,5 +53,22 @@ public class AttendanceController {
         LocationVerifyResponseDto verification = attendanceService.verifyLocation(email, request);
 
         return ResponseEntity.ok(verification);
+    }
+
+    //get attendance list by user
+    @GetMapping("/users/{userId}/report")
+    public ResponseEntity<List<AttendanceRecordDto>> getUserReports(@PathVariable String userId) {
+
+        List<AttendanceRecordDto> reports = attendanceService.getUserReport(userId);
+        return ResponseEntity.ok(reports);
+    }
+
+    //get attendance report by office
+    @GetMapping("/offices/{officeId}/report")
+    public ResponseEntity<OfficeReportDto> getOfficeReports(@PathVariable String officeId) {
+
+        OfficeReportDto report = attendanceService.getOfficeReport(officeId);
+
+        return ResponseEntity.ok(report);
     }
 }

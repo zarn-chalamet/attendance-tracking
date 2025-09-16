@@ -10,4 +10,7 @@ export const attendanceService = {
       headers: { "Content-Type": "multipart/form-data" },
     }),
   verifyLocation: (data) => api.post("/attendance/verify", data),
+  getUserReport: (userId) => api.get(`/attendance/users/${userId}/report`),
+  getOfficeReport: (officeId) =>
+    api.get(`/attendance/offices/${officeId}/report`),
 };

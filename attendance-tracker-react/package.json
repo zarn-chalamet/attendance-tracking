@@ -12,6 +12,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.8",
     "@tailwindcss/vite": "^4.1.13",
+    "@windmill/react-ui": "^0.6.0",
     "axios": "^1.12.2",
     "face-api.js": "^0.22.2",
     "lucide-react": "^0.544.0",

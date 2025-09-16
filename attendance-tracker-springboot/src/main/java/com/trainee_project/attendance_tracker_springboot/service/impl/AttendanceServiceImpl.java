@@ -1,6 +1,7 @@
 package com.trainee_project.attendance_tracker_springboot.service.impl;
 
 import com.trainee_project.attendance_tracker_springboot.dto.*;
+import com.trainee_project.attendance_tracker_springboot.exception.OfficeNotFoundException;
 import com.trainee_project.attendance_tracker_springboot.exception.SessionWindowNotFoundException;
 import com.trainee_project.attendance_tracker_springboot.model.*;
 import com.trainee_project.attendance_tracker_springboot.repository.AttendanceRecordRepository;
@@ -21,7 +22,9 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final UserRepository userRepository;
     private final SessionWindowRepository sessionWindowRepository;
     private final FaceRecognitionService faceRecognitionService;
+    private final OfficeLocationRepository officeLocationRepository;
 
     @Override
     @Transactional
@@ -204,6 +208,58 @@ public class AttendanceServiceImpl implements AttendanceService {
         return LocationVerifyResponseDto.builder()
                 .withinRadius(distance <= office.getRadiusMeters())
                 .radiusMeters(office.getRadiusMeters())
+                .build();
+    }
+
+    @Override
+    public List<AttendanceRecordDto> getUserReport(String userId) {
+
+        UUID uuid = UUID.fromString(userId);
+
+        User user = userRepository.findById(uuid)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id:" + userId));
+
+        List<AttendanceRecord> records = attendanceRecordRepository.findByUser(user);
+
+        return records.stream()
+                .map(r -> AttendanceRecordDto.builder()
+                        .id(r.getId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .sessionType(r.getSessionType().toString())
+                        .clockInTime(r.getClockInTime())
+                        .clockOutTime(r.getClockOutTime())
+                        .clockInLat(r.getClockInLat())
+                        .clockInLng(r.getClockInLng())
+                        .clockOutLat(r.getClockOutLat())
+                        .clockOutLng(r.getClockOutLng())
+                        .status(r.getStatus())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public OfficeReportDto getOfficeReport(String officeId) {
+
+        OfficeLocation office = officeLocationRepository.findById(officeId)
+                .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: "+ officeId));
+
+        List<User> users = userRepository.findByAssignedOffice(office);
+        List<AttendanceRecord> records = attendanceRecordRepository.findByUserIn(users);
+
+        long totalSessions = users.size() * sessionWindowRepository.count();
+        long totalPresent = records.stream().filter(r -> "OK".equals(r.getStatus())).count();
+        long totalAbsent = totalSessions - totalPresent;
+
+        double attendancePercentage = totalSessions > 0 ? (double) totalPresent / totalSessions * 100 : 0;
+
+        return OfficeReportDto.builder()
+                .officeName(office.getName())
+                .totalUsers((long) users.size())
+                .totalSessions(totalSessions)
+                .totalPresent(totalPresent)
+                .totalAbsent(totalAbsent)
+                .attendancePercentage(attendancePercentage)
                 .build();
     }
 

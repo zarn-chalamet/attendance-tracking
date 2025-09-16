@@ -38,7 +38,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto getUserById(String userId) {
 
-        User user = userRepository.findById(userId)
+        UUID uuid = UUID.fromString(userId);
+
+        User user = userRepository.findById(uuid)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: "+userId));
 
         return UserMapper.mapToDto(user);
@@ -47,7 +49,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto updateFaceEmbeddingJson(String userId, MultipartFile file) throws IOException {
 
-        User user = userRepository.findById(userId)
+        UUID uuid = UUID.fromString(userId);
+
+        User user = userRepository.findById(uuid)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: "+userId));
 
         //save url in the upload file
