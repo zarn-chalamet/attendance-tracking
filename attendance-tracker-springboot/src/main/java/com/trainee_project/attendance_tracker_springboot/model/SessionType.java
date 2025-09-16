@@ -4,5 +4,6 @@ public enum SessionType {
     MORNING,
     LUNCH,
     AFTERNOON,
-    EVENING
+    EVENING,
+    TEST
 }

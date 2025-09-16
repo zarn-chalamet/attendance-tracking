@@ -4,14 +4,16 @@ import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
-// import AdminDashboard from './pages/AdminDashboard';
-// import UserManagement from './components/admin/UserManagement';
-// import OfficeManagement from './components/admin/OfficeManagement';
-// import SessionManagement from './components/admin/SessionManagement';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 import HistoryPage from './pages/HistoryPage';
 import Announcement from './pages/Announcement';
+import ALayout from './components/adminLayout/ALayout';
+import ADashboard from './pages/admin/AdminDashboard';
+import OfficesPage from './pages/admin/OfficesPage';
+import ReportPage from "./pages/admin/ReportPage";
+import SessionsPage from "./pages/admin/SessionsPage";
+import UsersPage from "./pages/admin/UsersPage";
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -70,6 +72,61 @@ function App() {
                   <Announcement/>
                 </Layout>
               </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <ProtectedRoute>
+                <ALayout>
+                  <ADashboard/>
+                </ALayout>
+              </ProtectedRoute> 
+            } 
+          />
+
+          <Route 
+            path="/admin/offices" 
+            element={
+              <ProtectedRoute>
+                <ALayout>
+                  <OfficesPage/>
+                </ALayout>
+              </ProtectedRoute> 
+            } 
+          />
+
+          <Route 
+            path="/admin/reports" 
+            element={
+              <ProtectedRoute>
+                <ALayout>
+                  <ReportPage/>
+                </ALayout>
+              </ProtectedRoute> 
+            } 
+          />
+
+          <Route 
+            path="/admin/sessions" 
+            element={
+              <ProtectedRoute>
+                <ALayout>
+                  <SessionsPage/>
+                </ALayout>
+              </ProtectedRoute> 
+            } 
+          />
+
+          <Route 
+            path="/admin/users" 
+            element={
+              <ProtectedRoute>
+                <ALayout>
+                  <UsersPage/>
+                </ALayout>
+              </ProtectedRoute> 
             } 
           />
           {/* <Route 
