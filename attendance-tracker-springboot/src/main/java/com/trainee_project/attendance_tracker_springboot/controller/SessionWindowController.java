@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -63,4 +64,14 @@ public class SessionWindowController {
 
         return ResponseEntity.ok("Deleted session successfully.");
     }
+
+    //get all active sections
+    @GetMapping("/active")
+    public ResponseEntity<List<SessionWindowResponseDto>> getAllActiveSessions() {
+
+        List<SessionWindowResponseDto> sessions = sessionWindowService.getAllActiveSessionList();
+
+        return ResponseEntity.ok(sessions);
+    }
+
 }

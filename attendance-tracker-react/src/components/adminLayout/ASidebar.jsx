@@ -11,8 +11,7 @@ const Sidebar = ({ isOpen }) => {
     { name: "Sessions", href: "/admin/sessions", icon: Calendar },
     { name: "Offices", href: "/admin/offices", icon: Building },
     { name: "Users", href: "/admin/users", icon: Users },
-    { name: "Reports", href: "/admin/reports", icon: BarChart2 },
-    { name: "Settings", href: "/admin/settings", icon: Settings },
+    // { name: "Reports", href: "/admin/reports", icon: BarChart2 }
   ];
 
   const isActive = (href) => location.pathname === href;

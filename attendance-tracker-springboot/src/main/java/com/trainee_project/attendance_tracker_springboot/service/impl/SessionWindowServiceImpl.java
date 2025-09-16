@@ -5,13 +5,15 @@ import com.trainee_project.attendance_tracker_springboot.dto.SessionWindowRespon
 import com.trainee_project.attendance_tracker_springboot.exception.SessionAlreadyExistException;
 import com.trainee_project.attendance_tracker_springboot.exception.SessionWindowNotFoundException;
 import com.trainee_project.attendance_tracker_springboot.mapper.SessionWindowMapper;
+import com.trainee_project.attendance_tracker_springboot.model.OfficeLocation;
 import com.trainee_project.attendance_tracker_springboot.model.SessionWindow;
+import com.trainee_project.attendance_tracker_springboot.repository.OfficeLocationRepository;
 import com.trainee_project.attendance_tracker_springboot.repository.SessionWindowRepository;
 import com.trainee_project.attendance_tracker_springboot.service.SessionWindowService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -19,6 +21,7 @@ import java.util.List;
 public class SessionWindowServiceImpl implements SessionWindowService {
 
     private final SessionWindowRepository sessionWindowRepository;
+    private final OfficeLocationRepository officeLocationRepository;
 
     @Override
     public SessionWindowResponseDto createSession(SessionWindowRequestDto request) {
@@ -85,4 +88,22 @@ public class SessionWindowServiceImpl implements SessionWindowService {
 
         sessionWindowRepository.delete(session);
     }
+
+    @Override
+    public List<SessionWindowResponseDto> getAllActiveSessionList() {
+
+        LocalTime now = LocalTime.now();
+
+        List<SessionWindow> activeSessions = sessionWindowRepository.findAll().stream()
+                .filter(session -> session.getStartTime() != null
+                        && session.getEndTime() != null
+                        && !now.isBefore(session.getStartTime())   // now >= startTime
+                        && !now.isAfter(session.getEndTime()))     // now <= endTime
+                .toList();
+
+        return activeSessions.stream()
+                .map(SessionWindowMapper::mapToDto) // convert entity → DTO
+                .toList();
+    }
+
 }

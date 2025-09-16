@@ -6,6 +6,7 @@ import com.trainee_project.attendance_tracker_springboot.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -17,4 +18,9 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     List<AttendanceRecord> findByUser(User users);
 
     List<AttendanceRecord> findByUserIn(List<User> users);
+
+    int countByUser_AssignedOffice_IdAndStatusAndClockInTimeBetween(Long id, String ok, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+    Optional<AttendanceRecord> findTopByUser_EmailOrderByClockInTimeDesc(String email);
+
 }

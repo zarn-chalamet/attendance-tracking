@@ -28,7 +28,13 @@ export const AuthProvider = ({ children }) => {
   const getCurrentUser = async () => {
     try {
       const respoonse = await authService.getCurrentUser();
-      setUser(respoonse.data);
+
+      const normalizeUser = (rawUser) => ({
+        ...rawUser,
+        isAdmin: rawUser.role === "ADMIN_ROLE"
+      });
+
+      setUser(normalizeUser(respoonse.data));
     } catch (error) {
       console.error('Failed to get user data:', error);
       logout();

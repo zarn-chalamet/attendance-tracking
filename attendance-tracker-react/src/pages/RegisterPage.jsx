@@ -9,6 +9,7 @@ import { authService } from '../services/authService';
 
 const RegisterPage = () => {
   const [step, setStep] = useState(1);
+  const [offices,setOffices] = useState([]);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -27,15 +28,21 @@ const RegisterPage = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+
   const navigate = useNavigate();
 
-  // Mock office data
-  const offices = [
-    { id: 1, name: 'Headquarters', latitude: -6.2088, longitude: 106.8456, radiusMeters: 200 },
-    { id: 2, name: 'Branch Office - Downtown', latitude: -6.1805, longitude: 106.8283, radiusMeters: 200 },
-    { id: 3, name: 'Tech Campus', latitude: -6.2216, longitude: 106.7981, radiusMeters: 200 },
-    { id: 4, name: 'Operations Center', latitude: -6.2297, longitude: 106.8253, radiusMeters: 200 }
-  ];
+  useEffect(() => {
+    const fetchOffices = async () => {
+      try {
+        const response = await authService.getOffices();
+        console.log(response);
+        setOffices(response.data);
+      } catch (error) {
+        toast.error("Error fetching offices");
+      }
+    }
+    fetchOffices();
+  },[])
 
   // Effect to attach stream AFTER video element is mounted
   useEffect(() => {

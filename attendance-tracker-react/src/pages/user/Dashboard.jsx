@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MapPin, Camera, CheckCircle, X } from "lucide-react";
 import toast from "react-hot-toast";
-import { attendanceService } from "../services/attendanceService";
-import { sessionService } from "../services/sessionService";
-import { officeService } from "../services/officeService";
-import { useAuth } from "../contexts/AuthContext";
-import CurrentSection from "../components/dashboard/CurrentSection";
-import AllSections from "../components/dashboard/AllSections";
+import { attendanceService } from "../../services/attendanceService";
+import { sessionService } from "../../services/sessionService";
+import { officeService } from "../../services/officeService";
+import { useAuth } from "../../contexts/AuthContext";
+import CurrentSection from "../../components/dashboard/CurrentSection";
+import AllSections from "../../components/dashboard/AllSections";
 
 /** ---------- Utility: Distance Calculation ---------- **/
 const getDistanceInMeters = (lat1, lon1, lat2, lon2) => {
@@ -33,7 +33,8 @@ const Dashboard = () => {
   /** ---------- State ---------- **/
   const [sections, setSections] = useState([]);
   const [currentSection, setCurrentSection] = useState(null);
-  const [activity, setActivity] = useState([]);
+  // const [activity, setActivity] = useState([]);
+  const [currentRecord, setCurrentRecord] = useState([]);
   const [office, setOffice] = useState(null);
 
   const [showCameraModal, setShowCameraModal] = useState(false);
@@ -42,6 +43,8 @@ const Dashboard = () => {
   const [capturedImage, setCapturedImage] = useState(null);
   const [capturedFile, setCapturedFile] = useState(null);
   const [pendingLocation, setPendingLocation] = useState(null);
+
+  const [loading, setLoading] = useState(false);
 
   /** ---------- Refs ---------- **/
   const videoRef = useRef(null);
@@ -63,7 +66,19 @@ const Dashboard = () => {
         toast.error("Failed to fetch sessions or office location");
       }
     };
+
+    const getCurrentActiveRecord = async () => {
+    try {
+      const response = await attendanceService.getCurrentAttendanceRecord();
+      console.log(response);
+      setCurrentRecord(response.data);
+    } catch (error) {
+      toast.error("Error fetching current active record");
+    }
+  }
+
     fetchData();
+    getCurrentActiveRecord();
   }, [user]);
 
   /** ---------- Cleanup camera ---------- **/
@@ -162,12 +177,16 @@ const Dashboard = () => {
     startCamera();
   };
 
+  
+
   /** ---------- Submit ---------- **/
   const handleSubmitAttendance = async () => {
     if (!capturedFile) {
       toast.error("No face captured");
       return;
     }
+
+    setLoading(true);
 
     try {
       const formData = new FormData();
@@ -182,26 +201,32 @@ const Dashboard = () => {
         const response = await attendanceService.clockIn(formData);
         console.log(response);
         toast.success("Clocked in successfully!");
-        setActivity((prev) => [
-          ...prev,
-          {
-            sessionType: currentSection.sessionType,
-            clock_in: new Date().toLocaleTimeString(),
-            clock_out: null,
-          },
-        ]);
+        // setActivity((prev) => [
+        //   ...prev,
+        //   {
+        //     sessionType: currentSection.sessionType,
+        //     clock_in: new Date().toLocaleTimeString(),
+        //     clock_out: null,
+        //   },
+        // ]);
+
+        // getCurrentActiveRecord();
       } else {
         console.log(formData);
         const response = await attendanceService.clockOut(formData);
         console.log(response);
         toast.success("Clocked out successfully!");
-        setActivity((prev) =>
-          prev.map((act) =>
-            act.sessionType === currentSection.sessionType
-              ? { ...act, clock_out: new Date().toLocaleTimeString() }
-              : act
-          )
-        );
+
+        //set activity
+        // setActivity((prev) =>
+        //   prev.map((act) =>
+        //     act.sessionType === currentSection.sessionType
+        //       ? { ...act, clock_out: new Date().toLocaleTimeString() }
+        //       : act
+        //   )
+        // );
+
+        // getCurrentActiveRecord();
       }
 
       setShowCameraModal(false);
@@ -209,6 +234,8 @@ const Dashboard = () => {
       setCapturedFile(null);
     } catch (err) {
       toast.error(err.response?.data?.message || "Attendance failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -259,6 +286,17 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-50 rounded-xl">
+          <div className="flex flex-col items-center space-y-2">
+            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-white font-medium">Submitting...</p>
+          </div>
+        </div>
+      )}
+      
       {/* Camera Modal */}
       {showCameraModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -354,7 +392,7 @@ const Dashboard = () => {
       <CurrentSection 
         currentSection={currentSection}
         office={office}
-        activity={activity}
+        currentRecord={currentRecord}
         openCameraModal={openCameraModal}
       />
 

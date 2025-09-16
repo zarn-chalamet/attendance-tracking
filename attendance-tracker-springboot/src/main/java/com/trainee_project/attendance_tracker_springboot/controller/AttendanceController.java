@@ -71,4 +71,23 @@ public class AttendanceController {
 
         return ResponseEntity.ok(report);
     }
+
+    //get office report(all offices)
+    @GetMapping("/offices/report")
+    public ResponseEntity<OfficeReportSummaryDto> getOfficeSummaryReport() {
+
+        OfficeReportSummaryDto report = attendanceService.getOfficeSummaryReport();
+
+        return ResponseEntity.ok(report);
+    }
+
+    //get current active section of user
+    @GetMapping("/current")
+    public ResponseEntity<AttendanceRecordDto> getCurrentActiveAttendanceRecord(Principal principal) {
+
+        String email = principal.getName();
+        AttendanceRecordDto record = attendanceService.getCurrentActiveRecord(email);
+
+        return ResponseEntity.ok(record);
+    }
 }

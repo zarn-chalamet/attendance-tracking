@@ -15,4 +15,6 @@ public interface SessionWindowService {
     SessionWindowResponseDto updateSessionById(String sessionId, SessionWindowRequestDto request);
 
     void deleteSessionById(String sessionId);
+
+    List<SessionWindowResponseDto> getAllActiveSessionList();
 }

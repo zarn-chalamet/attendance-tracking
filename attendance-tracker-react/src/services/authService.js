@@ -7,4 +7,5 @@ export const authService = {
       headers: { "Content-Type": "multipart/form-data" },
     }),
   getCurrentUser: () => api.get("/users/profile"),
+  getOffices: () => api.get("/auth/offices"),
 };

@@ -3,11 +3,11 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/user/Dashboard';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
-import HistoryPage from './pages/HistoryPage';
-import Announcement from './pages/Announcement';
+import HistoryPage from './pages/user/HistoryPage';
+import Announcement from './pages/user/Announcement';
 import ALayout from './components/adminLayout/ALayout';
 import ADashboard from './pages/admin/AdminDashboard';
 import OfficesPage from './pages/admin/OfficesPage';
@@ -78,7 +78,7 @@ function App() {
           <Route 
             path="/admin/dashboard" 
             element={
-              <ProtectedRoute>
+              <ProtectedRoute >
                 <ALayout>
                   <ADashboard/>
                 </ALayout>
@@ -89,7 +89,7 @@ function App() {
           <Route 
             path="/admin/offices" 
             element={
-              <ProtectedRoute>
+              <ProtectedRoute >
                 <ALayout>
                   <OfficesPage/>
                 </ALayout>
@@ -100,7 +100,7 @@ function App() {
           <Route 
             path="/admin/reports" 
             element={
-              <ProtectedRoute>
+              <ProtectedRoute >
                 <ALayout>
                   <ReportPage/>
                 </ALayout>
@@ -111,7 +111,7 @@ function App() {
           <Route 
             path="/admin/sessions" 
             element={
-              <ProtectedRoute>
+              <ProtectedRoute >
                 <ALayout>
                   <SessionsPage/>
                 </ALayout>
@@ -122,7 +122,7 @@ function App() {
           <Route 
             path="/admin/users" 
             element={
-              <ProtectedRoute>
+              <ProtectedRoute >
                 <ALayout>
                   <UsersPage/>
                 </ALayout>

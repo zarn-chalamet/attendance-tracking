@@ -18,4 +18,8 @@ public interface AttendanceService {
     List<AttendanceRecordDto> getUserReport(String userId);
 
     OfficeReportDto getOfficeReport(String officeId);
+
+    OfficeReportSummaryDto getOfficeSummaryReport();
+
+    AttendanceRecordDto getCurrentActiveRecord(String email);
 }

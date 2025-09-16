@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -262,6 +263,94 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .attendancePercentage(attendancePercentage)
                 .build();
     }
+
+    @Override
+    public OfficeReportSummaryDto getOfficeSummaryReport() {
+
+        List<OfficeLocation> offices = officeLocationRepository.findAll();
+
+        int totalEmployees = 0;
+        int totalPresent = 0;
+        int totalAbsent = 0;
+        int totalLate = 0;
+
+        List<OfficeReportSummaryDto.OfficeAttendanceSummaryDto> summaries = new ArrayList<>();
+
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+
+        for (OfficeLocation office : offices) {
+            List<User> employees = userRepository.findByAssignedOffice(office);
+            int officeEmployees = employees.size();
+
+            //count present
+            int present = attendanceRecordRepository
+                    .countByUser_AssignedOffice_IdAndStatusAndClockInTimeBetween(
+                            office.getId(), "OK", startOfDay, endOfDay);
+
+
+            int absent = officeEmployees - present;
+
+            totalEmployees += officeEmployees;
+            totalPresent += present;
+            totalAbsent += absent;
+
+            summaries.add(
+                    OfficeReportSummaryDto.OfficeAttendanceSummaryDto.builder()
+                            .officeId(office.getId())
+                            .officeName(office.getName())
+                            .totalEmployees(officeEmployees)
+                            .presentCount(present)
+                            .absentCount(absent)
+                            .attendanceRate((officeEmployees == 0) ? 0 : ((present) * 100.0 / officeEmployees))
+                            .build()
+            );
+        }
+
+        return OfficeReportSummaryDto.builder()
+                .totalOffices(offices.size())
+                .totalEmployees(totalEmployees)
+                .totalPresentToday(totalPresent)
+                .totalAbsentToday(totalAbsent)
+                .officeSummaries(summaries)
+                .build();
+    }
+
+    @Override
+    public AttendanceRecordDto getCurrentActiveRecord(String email) {
+
+        //get user
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: "+ email));
+
+        //find last record of user
+        AttendanceRecord record = attendanceRecordRepository
+                .findTopByUser_EmailOrderByClockInTimeDesc(email)
+                .orElseThrow(() -> new IllegalStateException("No active attendance record found for user: " + email));
+
+        //check start time and last time is also not passed
+//        LocalDateTime now = LocalDateTime.now();
+//        if (now.isBefore(record.getClockInTime()) || now.isAfter(record.getClockOutTime())) {
+//            throw new IllegalStateException("No active attendance record found for user: " + email);
+//        }
+
+        return AttendanceRecordDto.builder()
+                .id(record.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .officeName(user.getAssignedOffice() != null ? user.getAssignedOffice().getName() : null)
+                .sessionType(record.getSessionType() != null ? record.getSessionType().name() : null)
+                .clockInTime(record.getClockInTime())
+                .clockOutTime(record.getClockOutTime())
+                .clockInLat(record.getClockInLat())
+                .clockInLng(record.getClockInLng())
+                .clockOutLat(record.getClockOutLat())
+                .clockOutLng(record.getClockOutLng())
+                .status(record.getStatus())
+                .build();
+    }
+
 
     private double haversine(double lat1, double lon1, double lat2, double lon2) {
         final int EARTH_RADIUS = 6371000; // meters

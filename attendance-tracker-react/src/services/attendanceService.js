@@ -13,4 +13,6 @@ export const attendanceService = {
   getUserReport: (userId) => api.get(`/attendance/users/${userId}/report`),
   getOfficeReport: (officeId) =>
     api.get(`/attendance/offices/${officeId}/report`),
+  getOfficesSummaryReport: () => api.get("/attendance/offices/report"),
+  getCurrentAttendanceRecord: () => api.get("/attendance/current"),
 };
