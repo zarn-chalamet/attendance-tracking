@@ -1,17 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { User, LogOut, ChevronDown } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
+  const {user, loading, logout} = useAuth();
 
   // Sample user data
-  const user = {
-    name: "John Doe",
-    email: "john.doe@company.com",
-    role: "Administrator",
-  };
+  // const user = {
+  //   name: "John Doe",
+  //   email: "john.doe@company.com",
+  //   role: "Administrator",
+  // };
+
+  useEffect(() => {
+    console.log(user)
+  },[user])
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard' },
@@ -27,6 +33,14 @@ const Navbar = () => {
     // Add your logout logic here
     console.log("Logging out...");
   };
+
+  if (loading) {
+    return <div className="p-4">Loading user...</div>; 
+  }
+
+  if (!user) {
+    return <div className="p-4">Not logged in</div>; 
+  }
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
@@ -75,11 +89,11 @@ const Navbar = () => {
             >
               <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
                 <span className="text-indigo-700 font-medium text-sm">
-                  {user.name.split(' ').map(n => n[0]).join('')}
+                  {user.username.split(' ').map(n => n[0]).join('')}
                 </span>
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium text-gray-800">{user.name}</p>
+                <p className="text-sm font-medium text-gray-800">{user.username}</p>
               </div>
               <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
             </button>

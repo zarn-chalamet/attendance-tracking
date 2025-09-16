@@ -27,8 +27,8 @@ export const AuthProvider = ({ children }) => {
 
   const getCurrentUser = async () => {
     try {
-      const userData = await authService.getCurrentUser();
-      setUser(userData);
+      const respoonse = await authService.getCurrentUser();
+      setUser(respoonse.data);
     } catch (error) {
       console.error('Failed to get user data:', error);
       logout();
@@ -42,11 +42,13 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login(credentials);
       console.log("login response");
       console.log(response);
-      const { token: authToken } = response;
+      const { token: authToken } = response.data;
       
       setToken(authToken);
+      console.log(token);
       localStorage.setItem('authToken', authToken);
-      
+      console.log(token);
+      getCurrentUser();
       return { success: true };
     } catch (error) {
       return { 

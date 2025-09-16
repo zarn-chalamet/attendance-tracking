@@ -41,11 +41,11 @@ function App() {
           <Route 
             path="/dashboard" 
             element={
-              
+              <ProtectedRoute>
                 <Layout>
                   <Dashboard />
                 </Layout>
-              
+              </ProtectedRoute>
             } 
           />
           
