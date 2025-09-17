@@ -15,4 +15,6 @@ export const attendanceService = {
     api.get(`/attendance/offices/${officeId}/report`),
   getOfficesSummaryReport: () => api.get("/attendance/offices/report"),
   getCurrentAttendanceRecord: () => api.get("/attendance/current"),
+  getAttendanceRecordBySessionType: (sessionType) =>
+    api.get(`/attendance/sessions?sessionType=${sessionType}`),
 };

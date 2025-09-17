@@ -57,14 +57,7 @@ const UserDetailsModal = ({ selectedUser, setSelectedUser }) => {
                   <span className="font-semibold text-gray-700">Office:</span>{" "}
                   {selectedUser.office_name || "N/A"}
                 </p>
-                <p>
-                  <span className="font-semibold text-gray-700">
-                    Active Sessions:
-                  </span>{" "}
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                    {selectedUser.activeSessions || 0}
-                  </span>
-                </p>
+                
               </div>
             </div>
 
@@ -110,16 +103,6 @@ const UserDetailsModal = ({ selectedUser, setSelectedUser }) => {
                   ))}
                 </div>
               )}
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 flex justify-end">
-              <button
-                onClick={() => setSelectedUser(null)}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>

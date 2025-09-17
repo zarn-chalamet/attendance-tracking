@@ -8,7 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import CurrentSection from "../../components/dashboard/CurrentSection";
 import AllSections from "../../components/dashboard/AllSections";
 
-/** ---------- Utility: Distance Calculation ---------- **/
+
 const getDistanceInMeters = (lat1, lon1, lat2, lon2) => {
   const R = 6371000; // Earth radius in meters
   const toRad = (deg) => (deg * Math.PI) / 180;
@@ -51,6 +51,16 @@ const Dashboard = () => {
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
 
+  const getCurrentActiveRecord = async () => {
+    try {
+      const response = await attendanceService.getCurrentAttendanceRecord();
+      console.log(response);
+      setCurrentRecord(response.data);
+    } catch (error) {
+      toast.error("Error fetching current active record");
+    }
+  }
+
   /** ---------- Fetch data ---------- **/
   useEffect(() => {
     const fetchData = async () => {
@@ -66,16 +76,6 @@ const Dashboard = () => {
         toast.error("Failed to fetch sessions or office location");
       }
     };
-
-    const getCurrentActiveRecord = async () => {
-    try {
-      const response = await attendanceService.getCurrentAttendanceRecord();
-      console.log(response);
-      setCurrentRecord(response.data);
-    } catch (error) {
-      toast.error("Error fetching current active record");
-    }
-  }
 
     fetchData();
     getCurrentActiveRecord();
@@ -185,7 +185,7 @@ const Dashboard = () => {
       toast.error("No face captured");
       return;
     }
-
+    setShowCameraModal(false);
     setLoading(true);
 
     try {
@@ -201,35 +201,16 @@ const Dashboard = () => {
         const response = await attendanceService.clockIn(formData);
         console.log(response);
         toast.success("Clocked in successfully!");
-        // setActivity((prev) => [
-        //   ...prev,
-        //   {
-        //     sessionType: currentSection.sessionType,
-        //     clock_in: new Date().toLocaleTimeString(),
-        //     clock_out: null,
-        //   },
-        // ]);
-
-        // getCurrentActiveRecord();
+        
       } else {
         console.log(formData);
         const response = await attendanceService.clockOut(formData);
         console.log(response);
         toast.success("Clocked out successfully!");
 
-        //set activity
-        // setActivity((prev) =>
-        //   prev.map((act) =>
-        //     act.sessionType === currentSection.sessionType
-        //       ? { ...act, clock_out: new Date().toLocaleTimeString() }
-        //       : act
-        //   )
-        // );
-
-        // getCurrentActiveRecord();
       }
 
-      setShowCameraModal(false);
+      getCurrentActiveRecord();
       setCapturedImage(null);
       setCapturedFile(null);
     } catch (err) {

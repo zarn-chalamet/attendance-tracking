@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, X } from "lucide-react";
+import { Plus, Edit, Trash2, X, MapPin } from "lucide-react";
 import toast from "react-hot-toast";
 import { sessionService } from "../../services/sessionService";
+import { attendanceService } from "../../services/attendanceService";
 
 const SessionsPage = () => {
   const [sessions, setSessions] = useState([]);
   const [filteredSessions, setFilteredSessions] = useState([]);
   const [filterType, setFilterType] = useState("");
 
-  // Modal states
+  // Session CRUD modal
   const [showModal, setShowModal] = useState(false);
-  const [editingSession, setEditingSession] = useState(null); // null = create
+  const [editingSession, setEditingSession] = useState(null);
 
-  // Form states
+  // Attendance modal
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [attendanceRecords, setAttendanceRecords] = useState([]);
+  const [selectedSession, setSelectedSession] = useState(null);
+
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [sessionType, setSessionType] = useState("");
 
-  // Fetch sessions from API
+  // Fetch sessions
   useEffect(() => {
     fetchSessions();
   }, []);
@@ -35,15 +40,23 @@ const SessionsPage = () => {
   // Filter sessions
   useEffect(() => {
     let temp = [...sessions];
-
-    if (filterType) {
-      temp = temp.filter((s) => s.sessionType === filterType);
-    }
-
+    if (filterType) temp = temp.filter((s) => s.sessionType === filterType);
     setFilteredSessions(temp);
   }, [filterType, sessions]);
 
-  // CRUD Handlers
+  // Open Attendance Modal
+  const openAttendanceModal = async (session) => {
+    try {
+      setSelectedSession(session);
+      const res = await attendanceService.getAttendanceRecordBySessionType(session.sessionType);
+      setAttendanceRecords(res.data);
+      setShowAttendanceModal(true);
+    } catch (err) {
+      toast.error("Failed to fetch attendance records");
+    }
+  };
+
+  // CRUD handlers (simplified)
   const openCreateModal = () => {
     setEditingSession(null);
     setStartTime("");
@@ -51,7 +64,6 @@ const SessionsPage = () => {
     setSessionType("");
     setShowModal(true);
   };
-
   const openEditModal = (session) => {
     setEditingSession(session);
     setStartTime(session.startTime);
@@ -59,7 +71,6 @@ const SessionsPage = () => {
     setSessionType(session.sessionType);
     setShowModal(true);
   };
-
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this session?")) return;
     try {
@@ -70,40 +81,22 @@ const SessionsPage = () => {
       toast.error("Failed to delete session");
     }
   };
-
   const handleSave = async () => {
     if (!startTime || !endTime || !sessionType) {
       toast.error("All fields are required");
       return;
     }
-
     try {
+      const payload = { sessionType: sessionType.toUpperCase(), startTime, endTime };
       if (editingSession) {
-        // Update
-        const res = await sessionService.updateSession(editingSession.id, {
-          startTime,
-          endTime,
-          sessionType,
-        });
-        setSessions(
-          sessions.map((s) => (s.id === editingSession.id ? res.data : s))
-        );
+        const res = await sessionService.updateSession(editingSession.id, payload);
+        setSessions(sessions.map((s) => (s.id === editingSession.id ? res.data : s)));
         toast.success("Session updated");
       } else {
-        // Create
-        console.log(startTime)
-        console.log(endTime)
-        console.log(sessionType)
-        const payload = {
-          sessionType: sessionType.toUpperCase(), // "MORNING" | "LUNCH" | "AFTERNOON" | "EVENING"
-          startTime: startTime, // "08:00:00"
-          endTime: endTime      // "12:00:00"
-        };
         const res = await sessionService.createSession(payload);
         setSessions([...sessions, res.data]);
         toast.success("Session created");
       }
-
       setShowModal(false);
     } catch (err) {
       toast.error(err.response?.data?.message || "Action failed");
@@ -141,11 +134,11 @@ const SessionsPage = () => {
         </select>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-lg shadow-md">
-          <thead>
-            <tr className="bg-gray-100 text-left">
+      {/* Sessions Table */}
+      <div className="overflow-x-auto rounded-lg shadow-md">
+        <table className="min-w-full bg-white">
+          <thead className="bg-gray-100 text-left">
+            <tr>
               <th className="px-4 py-2">Start Time</th>
               <th className="px-4 py-2">End Time</th>
               <th className="px-4 py-2">Type</th>
@@ -155,25 +148,35 @@ const SessionsPage = () => {
           <tbody>
             {filteredSessions.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center py-4 text-gray-500">
+                <td colSpan="4" className="text-center py-4 text-gray-500">
                   No sessions found
                 </td>
               </tr>
             ) : (
               filteredSessions.map((s) => (
-                <tr key={s.id} className="border-b hover:bg-gray-50">
+                <tr
+                  key={s.id}
+                  className="border-b hover:bg-gray-50 cursor-pointer"
+                  onClick={() => openAttendanceModal(s)}
+                >
                   <td className="px-4 py-2">{s.startTime}</td>
                   <td className="px-4 py-2">{s.endTime}</td>
                   <td className="px-4 py-2">{s.sessionType}</td>
                   <td className="px-4 py-2 flex space-x-2">
                     <button
-                      onClick={() => openEditModal(s)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEditModal(s);
+                      }}
                       className="bg-yellow-500 text-white px-2 py-1 rounded-lg hover:bg-yellow-600 transition"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(s.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(s.id);
+                      }}
                       className="bg-red-600 text-white px-2 py-1 rounded-lg hover:bg-red-700 transition"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -185,6 +188,73 @@ const SessionsPage = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Attendance Modal */}
+      {showAttendanceModal && selectedSession && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-4xl overflow-auto max-h-[80vh]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">
+                Attendance Records: {selectedSession.sessionType}
+              </h2>
+              <button onClick={() => setShowAttendanceModal(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white rounded-lg">
+                <thead className="bg-gray-100 text-left">
+                  <tr>
+                    <th className="px-4 py-2">User</th>
+                    <th className="px-4 py-2">Email</th>
+                    <th className="px-4 py-2">Office</th>
+                    <th className="px-4 py-2">Clock In</th>
+                    <th className="px-4 py-2">Clock Out</th>
+                    <th className="px-4 py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {attendanceRecords.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="text-center py-4 text-gray-500">
+                        No attendance records
+                      </td>
+                    </tr>
+                  ) : (
+                    attendanceRecords.map((r) => (
+                      <tr key={r.id} className="border-b hover:bg-gray-50">
+                        <td className="px-4 py-2">{r.username}</td>
+                        <td className="px-4 py-2">{r.email}</td>
+                        <td className="px-4 py-2">{r.officeName}</td>
+                        <td className="px-4 py-2">
+                          {r.clockInTime ? new Date(r.clockInTime).toLocaleString() : "-"}
+                        </td>
+                        <td className="px-4 py-2">
+                          {r.clockOutTime ? new Date(r.clockOutTime).toLocaleString() : "-"}
+                        </td>
+                        <td className="px-4 py-2">
+                          <span
+                            className={`inline-block px-2 py-1 rounded-full text-xs ${
+                              r.status === "OK"
+                                ? "bg-green-100 text-green-800"
+                                : r.status === "MISSING"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {r.status === "OK" ? "PRESENT" : "MISSING"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create/Edit Modal */}
       {showModal && (

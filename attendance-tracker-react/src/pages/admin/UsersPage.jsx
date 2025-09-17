@@ -55,7 +55,6 @@ const UsersPage = () => {
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Role</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Office</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Active Sessions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -80,11 +79,6 @@ const UsersPage = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-600">{user.office_name || "N/A"}</td>
-                  <td className="px-6 py-4">
-                    <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                      {user.activeSessions || 0}
-                    </span>
-                  </td>
                 </tr>
               ))
             )}

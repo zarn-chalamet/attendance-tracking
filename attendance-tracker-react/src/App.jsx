@@ -14,12 +14,23 @@ import OfficesPage from './pages/admin/OfficesPage';
 import ReportPage from "./pages/admin/ReportPage";
 import SessionsPage from "./pages/admin/SessionsPage";
 import UsersPage from "./pages/admin/UsersPage";
+import Loading from './components/app/Loading';
+
+const GuestRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) return <Loading/>;
+
+  if (user) return <Navigate to="/dashboard" replace />;
+
+  return children;
+};
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
   
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading/>;
   }
   
   if (!user) {
@@ -39,8 +50,16 @@ function App() {
       <BrowserRouter>
         <Toaster position="top-right" />
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={
+            <GuestRoute>
+              <LoginPage />
+            </GuestRoute>
+            } />
+          <Route path="/register" element={
+            <GuestRoute>
+              <RegisterPage />
+            </GuestRoute>
+          } />
           
           <Route 
             path="/dashboard" 
