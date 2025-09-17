@@ -97,7 +97,7 @@ function App() {
           <Route 
             path="/admin/dashboard" 
             element={
-              <ProtectedRoute >
+              <ProtectedRoute adminOnly={true}>
                 <ALayout>
                   <ADashboard/>
                 </ALayout>
@@ -108,7 +108,7 @@ function App() {
           <Route 
             path="/admin/offices" 
             element={
-              <ProtectedRoute >
+              <ProtectedRoute adminOnly={true}>
                 <ALayout>
                   <OfficesPage/>
                 </ALayout>
@@ -119,7 +119,7 @@ function App() {
           <Route 
             path="/admin/reports" 
             element={
-              <ProtectedRoute >
+              <ProtectedRoute adminOnly={true}>
                 <ALayout>
                   <ReportPage/>
                 </ALayout>
@@ -130,7 +130,7 @@ function App() {
           <Route 
             path="/admin/sessions" 
             element={
-              <ProtectedRoute >
+              <ProtectedRoute adminOnly={true}>
                 <ALayout>
                   <SessionsPage/>
                 </ALayout>
@@ -141,56 +141,13 @@ function App() {
           <Route 
             path="/admin/users" 
             element={
-              <ProtectedRoute >
+              <ProtectedRoute adminOnly={true}>
                 <ALayout>
                   <UsersPage/>
                 </ALayout>
               </ProtectedRoute> 
             } 
           />
-          {/* <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute adminOnly={true}>
-                <Layout>
-                  <AdminDashboard />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route 
-            path="/admin/users" 
-            element={
-              <ProtectedRoute adminOnly={true}>
-                <Layout>
-                  <UserManagement />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route 
-            path="/admin/offices" 
-            element={
-              <ProtectedRoute adminOnly={true}>
-                <Layout>
-                  <OfficeManagement />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route 
-            path="/admin/sessions" 
-            element={
-              <ProtectedRoute adminOnly={true}>
-                <Layout>
-                  <SessionManagement />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          /> */}
           
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
