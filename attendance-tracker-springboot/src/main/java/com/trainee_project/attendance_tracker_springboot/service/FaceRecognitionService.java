@@ -1,6 +1,7 @@
 package com.trainee_project.attendance_tracker_springboot.service;
 
 import com.trainee_project.attendance_tracker_springboot.dto.FaceVerificationResponseDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,11 @@ public class FaceRecognitionService {
 
     private final WebClient webClient;
 
-    public FaceRecognitionService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://outgg-1089597453640.asia-southeast1.run.app").build();
+    public FaceRecognitionService(WebClient.Builder webClientBuilder,
+                                  @Value("${face.recognition.url}") String faceRecognitionUrl) {
+        this.webClient = webClientBuilder.baseUrl(faceRecognitionUrl).build();
     }
+
 
     public FaceVerificationResponseDto verifyFace(byte[] referenceImage, byte[] liveImage) {
         ByteArrayResource referenceResource = new ByteArrayResource(referenceImage) {
