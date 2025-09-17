@@ -14,7 +14,7 @@ public class FaceRecognitionService {
     private final WebClient webClient;
 
     public FaceRecognitionService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://localhost:8000").build();
+        this.webClient = webClientBuilder.baseUrl("https://outgg-1089597453640.asia-southeast1.run.app").build();
     }
 
     public FaceVerificationResponseDto verifyFace(byte[] referenceImage, byte[] liveImage) {

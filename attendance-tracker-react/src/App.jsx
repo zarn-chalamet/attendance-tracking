@@ -21,7 +21,9 @@ const GuestRoute = ({ children }) => {
 
   if (loading) return <Loading/>;
 
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) {
+    return <Navigate to={user.isAdmin ? "/admin/dashboard" : "/dashboard"} replace />;
+  }
 
   return children;
 };
@@ -150,6 +152,7 @@ function App() {
           />
           
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
