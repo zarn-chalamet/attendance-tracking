@@ -1,7 +1,17 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from deepface import DeepFace
 
 app = FastAPI(title="Face Verification Service")
+
+# Allow your frontend origin(s) here:
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/api/face/verify")
 async def verify_faces(reference_file: UploadFile = File(...), live_file: UploadFile = File(...)):

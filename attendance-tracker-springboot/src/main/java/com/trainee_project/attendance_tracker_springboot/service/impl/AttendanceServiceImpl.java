@@ -320,21 +320,38 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public AttendanceRecordDto getCurrentActiveRecord(String email) {
 
-        //get user
+        // Get user
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: "+ email));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        //find last record of user
-        AttendanceRecord record = attendanceRecordRepository
-                .findTopByUser_EmailOrderByClockInTimeDesc(email)
-                .orElseThrow(() -> new IllegalStateException("No active attendance record found for user: " + email));
+        // Get current session based on current time
+        LocalTime nowTime = LocalTime.now();
+        Optional<SessionWindow> currentSessionOpt = sessionWindowRepository
+                .findFirstByStartTimeLessThanEqualAndEndTimeGreaterThanEqual(nowTime, nowTime);
 
-        //check start time and last time is also not passed
-//        LocalDateTime now = LocalDateTime.now();
-//        if (now.isBefore(record.getClockInTime()) || now.isAfter(record.getClockOutTime())) {
-//            throw new IllegalStateException("No active attendance record found for user: " + email);
-//        }
+        if (currentSessionOpt.isEmpty()) {
+            return null; // no active session right now
+        }
 
+        SessionWindow currentSession = currentSessionOpt.get();
+
+        // Find last record of user
+        Optional<AttendanceRecord> optionalRecord = attendanceRecordRepository
+                .findTopByUser_EmailAndSessionTypeOrderByClockInTimeDesc(email, currentSession.getSessionType());
+
+        if (optionalRecord.isEmpty()) {
+            return null; // no record found for current session
+        }
+
+        AttendanceRecord record = optionalRecord.get();
+
+        // Check if the record is today
+        LocalDate today = LocalDate.now();
+        if (!record.getClockInTime().toLocalDate().isEqual(today)) {
+            return null; // last record is not from today
+        }
+
+        // Build DTO
         return AttendanceRecordDto.builder()
                 .id(record.getId())
                 .username(user.getUsername())
@@ -350,6 +367,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .status(record.getStatus())
                 .build();
     }
+
 
 
     private double haversine(double lat1, double lon1, double lat2, double lon2) {
