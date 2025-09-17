@@ -1,18 +1,14 @@
-# Dockerfile
 FROM python:3.10-slim
 
+# Prevent Python from writing pyc files & enable unbuffered logs
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
-# system deps needed by TF / OpenCV / ffmpeg etc.
+# Install only the required system libs for OpenCV/TensorFlow
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    git \
-    wget \
-    ca-certificates \
     ffmpeg \
     libglib2.0-0 \
     libsm6 \
@@ -22,15 +18,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
  && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install
+# Install Python dependencies
 COPY requirements.txt .
-
-RUN pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy app source
 COPY . .
 
-# Expose port (Render will pass $PORT)
-ENV PORT 8000
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Expose port (Render sets $PORT automatically)
+ENV PORT=8000
+
+# Run as non-root (best practice)
+RUN useradd -m appuser
+USER appuser
+
+# Start FastAPI with uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
