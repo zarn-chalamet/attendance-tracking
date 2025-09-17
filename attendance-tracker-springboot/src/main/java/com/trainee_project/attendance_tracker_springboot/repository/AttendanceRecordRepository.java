@@ -24,4 +24,6 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     Optional<AttendanceRecord> findTopByUser_EmailOrderByClockInTimeDesc(String email);
 
     Optional<AttendanceRecord> findTopByUser_EmailAndSessionTypeOrderByClockInTimeDesc(String email, SessionType sessionType);
+
+    List<AttendanceRecord> findBySessionTypeOrderByClockInTimeDesc(SessionType sessionType);
 }

@@ -20,7 +20,13 @@ public class AttendanceRecordDto {
 
     private String email;
 
+    private String officeId;
+
     private String officeName;
+
+    private double officeLatitude;
+
+    private double officeLongitude;
 
     private String sessionType;
 

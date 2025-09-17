@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         //get office by id
-        OfficeLocation office = officeLocationRepository.findById(officeId)
+        OfficeLocation office = officeLocationRepository.findById(Long.valueOf(officeId))
                 .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: " + officeId));
 
         //save url in the upload file

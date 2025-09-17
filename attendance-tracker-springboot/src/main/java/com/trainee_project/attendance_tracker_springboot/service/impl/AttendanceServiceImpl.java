@@ -220,6 +220,9 @@ public class AttendanceServiceImpl implements AttendanceService {
         User user = userRepository.findById(uuid)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id:" + userId));
 
+        OfficeLocation office = officeLocationRepository.findById(user.getAssignedOffice().getId())
+                .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: "+user.getAssignedOffice().getId()));
+
         List<AttendanceRecord> records = attendanceRecordRepository.findByUser(user);
 
         return records.stream()
@@ -227,6 +230,10 @@ public class AttendanceServiceImpl implements AttendanceService {
                         .id(r.getId())
                         .username(user.getUsername())
                         .email(user.getEmail())
+                        .officeId(user.getAssignedOffice().getId().toString())
+                        .officeName(user.getAssignedOffice().getName())
+                        .officeLatitude(office.getLatitude())
+                        .officeLongitude(office.getLongitude())
                         .sessionType(r.getSessionType().toString())
                         .clockInTime(r.getClockInTime())
                         .clockOutTime(r.getClockOutTime())
@@ -242,7 +249,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public OfficeReportDto getOfficeReport(String officeId) {
 
-        OfficeLocation office = officeLocationRepository.findById(officeId)
+        OfficeLocation office = officeLocationRepository.findById(Long.valueOf(officeId))
                 .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: "+ officeId));
 
         List<User> users = userRepository.findByAssignedOffice(office);
@@ -368,6 +375,33 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .build();
     }
 
+    @Override
+    public List<AttendanceRecordDto> getAttendanceRecordBySessionType(SessionType sessionType) {
+
+        //find the attendance records by sectionType and desc
+        List<AttendanceRecord> records = attendanceRecordRepository
+                .findBySessionTypeOrderByClockInTimeDesc(sessionType);
+
+        return records.stream()
+                .map(record -> AttendanceRecordDto.builder()
+                        .id(record.getId())
+                        .username(record.getUser().getUsername())
+                        .email(record.getUser().getEmail())
+                        .officeId(record.getUser().getAssignedOffice().getId().toString())
+                        .officeName(record.getUser().getAssignedOffice().getName())
+                        .officeLatitude(record.getUser().getAssignedOffice().getLatitude())
+                        .officeLongitude(record.getUser().getAssignedOffice().getLongitude())
+                        .sessionType(record.getSessionType().toString())
+                        .clockInTime(record.getClockInTime())
+                        .clockOutTime(record.getClockOutTime())
+                        .clockInLat(record.getClockInLat())
+                        .clockInLng(record.getClockInLng())
+                        .clockOutLat(record.getClockOutLat())
+                        .clockOutLng(record.getClockOutLng())
+                        .status(record.getStatus())
+                        .build())
+                .toList();
+    }
 
 
     private double haversine(double lat1, double lon1, double lat2, double lon2) {

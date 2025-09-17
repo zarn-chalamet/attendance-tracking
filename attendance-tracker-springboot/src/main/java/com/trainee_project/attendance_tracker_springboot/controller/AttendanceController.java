@@ -90,4 +90,13 @@ public class AttendanceController {
 
         return ResponseEntity.ok(record);
     }
+
+    //get attendance list by section type
+    @GetMapping("/sessions")
+    public ResponseEntity<List<AttendanceRecordDto>> getAttendanceRecordBySessionType(@RequestParam SessionType sessionType) {
+
+        List<AttendanceRecordDto> records = attendanceService.getAttendanceRecordBySessionType(sessionType);
+
+        return ResponseEntity.ok(records);
+    }
 }

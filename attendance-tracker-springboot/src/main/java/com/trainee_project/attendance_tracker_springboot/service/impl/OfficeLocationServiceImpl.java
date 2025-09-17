@@ -60,7 +60,7 @@ public class OfficeLocationServiceImpl implements OfficeLocationService {
     public OfficeLocationResponseDto getOfficeById(String officeId) {
 
         //get office by id
-        OfficeLocation office = officeLocationRepository.findById(officeId)
+        OfficeLocation office = officeLocationRepository.findById(Long.valueOf(officeId))
                 .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: "+ officeId));
 
         return OfficeLocationMapper.mapToDto(office);
@@ -70,7 +70,7 @@ public class OfficeLocationServiceImpl implements OfficeLocationService {
     public OfficeLocationResponseDto updateOfficeById(String officeId, OfficeLocationRequestDto request) {
 
         //get office by id
-        OfficeLocation office = officeLocationRepository.findById(officeId)
+        OfficeLocation office = officeLocationRepository.findById(Long.valueOf(officeId))
                 .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: "+ officeId));
 
         if(request.getName() != null) {
@@ -93,7 +93,7 @@ public class OfficeLocationServiceImpl implements OfficeLocationService {
     public void deleteOfficeById(String officeId) {
 
         //get office by id
-        OfficeLocation office = officeLocationRepository.findById(officeId)
+        OfficeLocation office = officeLocationRepository.findById(Long.valueOf(officeId))
                 .orElseThrow(() -> new OfficeNotFoundException("Office not found with id: "+ officeId));
 
         officeLocationRepository.delete(office);

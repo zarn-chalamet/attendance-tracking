@@ -22,4 +22,6 @@ public interface AttendanceService {
     OfficeReportSummaryDto getOfficeSummaryReport();
 
     AttendanceRecordDto getCurrentActiveRecord(String email);
+
+    List<AttendanceRecordDto> getAttendanceRecordBySessionType(SessionType sessionType);
 }
