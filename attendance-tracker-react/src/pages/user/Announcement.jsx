@@ -1,5 +1,5 @@
 import React from "react";
-import { Bell, Info, AlertTriangle } from "lucide-react";
+import { Bell, Info, AlertTriangle, Shield } from "lucide-react";
 
 const mockAnnouncements = [
   {
@@ -56,13 +56,36 @@ const Announcement = () => {
             <p className="text-gray-700">{announcement.message}</p>
           </div>
         ))}
+
+        {/* New Admin Credentials Card */}
+        <div className="p-6 rounded-xl shadow-md border-l-4 border-green-500 bg-green-50 hover:shadow-lg transition">
+          <div className="flex items-center mb-2 space-x-2">
+            <Shield className="text-green-600 w-5 h-5" />
+            <h2 className="text-lg font-semibold text-gray-900">
+              Test Admin Credentials
+            </h2>
+          </div>
+          <p className="text-gray-700 mb-2">
+            Use the following credentials to explore the Admin Dashboard:
+          </p>
+          <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm space-y-2">
+            <p className="text-sm">
+              <span className="font-semibold text-gray-800">Email:</span>{" "}
+              admin@gmail.com
+            </p>
+            <p className="text-sm">
+              <span className="font-semibold text-gray-800">Password:</span>{" "}
+              123456
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="mt-8 p-6 bg-gray-100 rounded-xl shadow-inner flex items-center space-x-4">
         <Bell className="w-6 h-6 text-gray-500" />
         <p className="text-gray-600">
-          Remember: This is a **mock version**. Do not enter any real sensitive
-          or confidential information.
+          Remember: This is a <strong>mock version</strong>. Do not enter any
+          real sensitive or confidential information.
         </p>
       </div>
     </div>
