@@ -1,20 +1,24 @@
 # Attendance Tracking App (Face Recognition)
 
-An attendance tracking system that verifies user attendance using **face recognition**.  
-Built with **Spring Boot** (backend), **React** (frontend), and **Python** (face recognition).  
+The Attendance Tracking App is a full-stack system that combines face recognition and location verification to provide a secure and reliable attendance solution. Built with Spring Boot (backend), React (frontend), and Python (DeepFace) for face recognition, the app ensures that employees can only clock in within a 200-meter radius of the office and with verified facial identity.
+
+This cross-platform solution integrates with a MySQL database for persistent storage and leverages JWT authentication for secure access. Designed for scalability, it is deployed across multiple platforms — Vercel (frontend), Railway (backend & database), and Google Cloud Run (face recognition service).
+
+The system provides employees with seamless check-in/out functionality, while offering administrators powerful tools to view and manage attendance records through an intuitive dashboard. 
 
 🌐 **Live Deployment**  
 - **Frontend (React)** → [https://attendance-tracking-three.vercel.app](https://attendance-tracking-three.vercel.app)  
 - **Backend (Spring Boot)** → [https://sb-backend-production-120d.up.railway.app](https://sb-backend-production-120d.up.railway.app)  
-- **Face Recognition Service (Python)** → [https://outgg-1089597453640.asia-southeast1.run.app](https://outgg-1089597453640.asia-southeast1.run.app)  
+- **Face Recognition Service (Python)** → [https://outback-1089597453640.asia-southeast1.run.app](https://outback-1089597453640.asia-southeast1.run.app)  
 
 ---
 
 ## 📌 Features
 
 - User registration & profile management  
-- Face recognition for attendance validation  
-- Attendance logs & history  
+- Face recognition powered by DeepFace for attendance validation
+- Location verification – ensures attendance is logged only within 200 meters of office location
+- Attendance logs & history
 - Admin dashboard for attendance records  
 - JWT authentication & secure APIs  
 - Cross-platform deployment (Vercel, Railway, GCP)  
@@ -35,15 +39,15 @@ Built with **Spring Boot** (backend), **React** (frontend), and **Python** (face
 ### Auth
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/auth/register` | POST | Register new user |
-| `/api/auth/login` | POST | User login (returns JWT token) |
+| `/auth/register` | POST | Register new user |
+| `/auth/login` | POST | User login (returns JWT token) |
 
 ### Attendance
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/attendance/check` | POST | Submit face image for attendance |
-| `/api/attendance/history` | GET | Get user’s attendance history |
-| `/api/admin/attendance/all` | GET | Admin view of all attendance logs |
+| `/attendance/clock-in` | POST | Clock in for attendance |
+| `/attendance/clock-in` | POST | Clock in for attendance |
+| `/attendance/verify` | POST | Verify user location (within 200m) |
 
 ### Users
 | Endpoint | Method | Description |
@@ -52,7 +56,7 @@ Built with **Spring Boot** (backend), **React** (frontend), and **Python** (face
 | `/api/users/{id}` | PUT | Update user profile |
 
 > ℹ️ The backend communicates with the **Face Recognition Service** at  
-> [https://outgg-1089597453640.asia-southeast1.run.app](https://outgg-1089597453640.asia-southeast1.run.app)
+> [https://outback-1089597453640.asia-southeast1.run.app](https://outback-1089597453640.asia-southeast1.run.app)
 
 ---
 
@@ -62,7 +66,7 @@ Built with **Spring Boot** (backend), **React** (frontend), and **Python** (face
 |-----------|------------|
 | Frontend | React (Vercel deployment) |
 | Backend | Spring Boot (Railway deployment) |
-| Face Recognition | Python (Google Cloud Run) |
+| Face Recognition | Python + DeepFace (Google Cloud Run) |
 | Database | MySQL (Railway) |
 
 ---
@@ -102,7 +106,7 @@ Built with **Spring Boot** (backend), **React** (frontend), and **Python** (face
    ```bash
     cd attendance-tracker-react
     npm install
-    npm start
+    npm run dev
 
 
 📂 Directory Structure
